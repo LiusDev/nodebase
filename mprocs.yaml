@@ -1,0 +1,9 @@
+procs:
+    inngest:
+        shell: "npm run inngest:dev"
+
+    next:
+        shell: "npm run dev"
+
+    prisma-studio:
+        shell: "npm run db:studio"
