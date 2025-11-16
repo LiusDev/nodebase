@@ -1,17 +1,19 @@
-import { getQueryClient, trpc } from "@/trpc/server"
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
-import Client from "./client"
+"use client"
 
-export default async function Page() {
-	const queryClient = getQueryClient()
+import { useTRPC } from "@/trpc/client"
+import { useQuery } from "@tanstack/react-query"
 
-	await queryClient.prefetchQuery(
-		trpc.hello.queryOptions({ text: "from tRPC" })
-	)
-
+export default function Page() {
+	const trpc = useTRPC()
+	const { data } = useQuery(trpc.getWorkflows.queryOptions())
 	return (
-		<HydrationBoundary state={dehydrate(queryClient)}>
-			<Client />
-		</HydrationBoundary>
+		<div>
+			<h1>Workflows</h1>
+			<ul>
+				{data?.map((workflow) => (
+					<li key={workflow.id}>{workflow.name}</li>
+				))}
+			</ul>
+		</div>
 	)
 }
