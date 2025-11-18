@@ -5,7 +5,7 @@ import z from "zod"
 import { PAGINATION } from "@/config/constants"
 
 export const workflowsRouter = createTRPCRouter({
-	create: proProcedure.mutation(async ({ ctx }) => {
+	create: protectedProcedure.mutation(async ({ ctx }) => {
 		return prisma.workflow.create({
 			data: {
 				name: generateSlug(3),
