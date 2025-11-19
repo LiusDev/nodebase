@@ -17,7 +17,7 @@ import {
 	EmptyTitle,
 } from "./ui/empty"
 import { cn } from "@/lib/utils"
-import React from "react"
+import React, { useState } from "react"
 import { Card, CardContent, CardDescription, CardTitle } from "./ui/card"
 import {
 	DropdownMenu,
@@ -211,11 +211,13 @@ export const EntityStateView = ({
 interface EntityEmptyViewProps extends EntityStateViewProps {
 	onNews?: () => void
 	newLabel?: string
+	isLoading?: boolean
 }
 
 export const EntityEmptyView = ({
 	onNews,
 	newLabel = "New Item",
+	isLoading,
 	...props
 }: EntityEmptyViewProps) => {
 	return (
@@ -223,7 +225,7 @@ export const EntityEmptyView = ({
 			{...props}
 			content={
 				onNews && (
-					<Button onClick={onNews} size="sm">
+					<Button onClick={onNews} size="sm" disabled={isLoading}>
 						<PlusIcon className="size-4" />
 						{newLabel}
 					</Button>
@@ -288,6 +290,7 @@ export const EntityItem = ({
 	isRemoving,
 	className,
 }: EntityItemProps) => {
+	const [openMenu, setOpenMenu] = useState(false)
 	const handleRemove = async (e: React.MouseEvent) => {
 		e.preventDefault()
 		e.stopPropagation()
@@ -296,6 +299,7 @@ export const EntityItem = ({
 
 		if (onRemove) {
 			await onRemove()
+			setOpenMenu(false)
 		}
 	}
 
@@ -326,12 +330,16 @@ export const EntityItem = ({
 						<div className="flex gap-x-4 items-center">
 							{actions}
 							{onRemove && (
-								<DropdownMenu>
+								<DropdownMenu
+									open={openMenu}
+									onOpenChange={setOpenMenu}
+								>
 									<DropdownMenuTrigger asChild>
 										<Button
 											size="icon"
 											variant="ghost"
 											onClick={(e) => e.stopPropagation()}
+											disabled={isRemoving}
 										>
 											<MoreVerticalIcon className="size-4" />
 										</Button>
@@ -342,6 +350,7 @@ export const EntityItem = ({
 									>
 										<DropdownMenuItem
 											onClick={handleRemove}
+											disabled={isRemoving}
 										>
 											<TrashIcon className="size-4" />
 											Delete

@@ -10,18 +10,19 @@ import {
 	EntitySearch,
 	EntityStateView,
 } from "@/components/entity-components"
-import { useCreateWorkflow, useSuspenseWorkflows } from "../hooks/use-workflows"
+import {
+	useCreateWorkflow,
+	useRemoveWorkflow,
+	useSuspenseWorkflows,
+} from "../hooks/use-workflows"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
 import { useRouter } from "next/navigation"
 import { useWorkflowsParams } from "../hooks/use-workflows-params"
 import { useEntitySearch } from "@/hooks/use-entity-search"
 import { Spinner } from "@/components/ui/spinner"
 import { AlertTriangleIcon, PackageOpenIcon, WorkflowIcon } from "lucide-react"
+import { formatDistanceToNow } from "date-fns"
 import type { Workflow } from "@/generated/prisma/client"
-import type { SerializedDates } from "@/lib/prisma-types"
-
-// Type for workflows coming from tRPC (dates are serialized as strings)
-type WorkflowData = SerializedDates<Workflow>
 
 export const WorkflowsList = () => {
 	const { data: workflows } = useSuspenseWorkflows()
@@ -150,24 +151,43 @@ export const WorkflowsEmpty = () => {
 				message="Create your first workflow to get started."
 				onNews={handleCreateWorkflow}
 				newLabel="Create workflow"
+				isLoading={createWorkflow.isPending}
 			/>
 		</>
 	)
 }
 
-export const WorkflowItem = ({ workflow }: { workflow: WorkflowData }) => {
+export const WorkflowItem = ({ workflow }: { workflow: Workflow }) => {
+	const removeWorkflow = useRemoveWorkflow()
+
+	const handleRemoveWorkflow = () => {
+		removeWorkflow.mutate({
+			id: workflow.id,
+		})
+	}
 	return (
 		<EntityItem
 			href={`/workflows/${workflow.id}`}
 			title={workflow.name || "Untitled Workflow"}
-			subtitle={"No description provided."}
+			subtitle={
+				<>
+					Updated{" "}
+					{formatDistanceToNow(workflow.updatedAt, {
+						addSuffix: true,
+					})}{" "}
+					&bull; Created{" "}
+					{formatDistanceToNow(workflow.createdAt, {
+						addSuffix: true,
+					})}
+				</>
+			}
 			image={
 				<div className="size-8 flex items-center justify-center">
 					<WorkflowIcon className="size-5 text-muted-foreground" />
 				</div>
 			}
-			onRemove={() => {}}
-			isRemoving={false}
+			onRemove={handleRemoveWorkflow}
+			isRemoving={removeWorkflow.isPending}
 		/>
 	)
 }
