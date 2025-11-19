@@ -115,7 +115,7 @@ export const WorkflowsLoading = () => {
 	return (
 		<EntityStateView
 			icon={<Spinner className="size-6" />}
-			title="Loading Workflows..."
+			title="Loading workflows..."
 		/>
 	)
 }
