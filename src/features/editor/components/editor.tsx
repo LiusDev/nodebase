@@ -15,6 +15,8 @@ import {
 	Controls,
 	MiniMap,
 	Panel,
+	useNodesState,
+	useEdgesState,
 } from "@xyflow/react"
 import { EntityStateView } from "@/components/entity-components"
 import { Spinner } from "@/components/ui/spinner"
@@ -44,31 +46,17 @@ export const EditorError = () => {
 
 export const Editor = ({ workflowId }: { workflowId: string }) => {
 	const { data: workflow } = useSuspenseWorkflow(workflowId)
-	const [nodes, setNodes] = useState<Node[]>(workflow.nodes)
-	const [edges, setEdges] = useState<Edge[]>(workflow.edges)
+	const [nodes, , onNodesChange] = useNodesState(workflow.nodes)
+	const [edges, setEdges, onEdgesChange] = useEdgesState(workflow.edges)
 
-	const onNodesChange = useCallback(
-		(changes: NodeChange[]) =>
-			setNodes((nodesSnapshot) =>
-				applyNodeChanges(changes, nodesSnapshot)
-			),
-		[]
-	)
-	const onEdgesChange = useCallback(
-		(changes: EdgeChange[]) =>
-			setEdges((edgesSnapshot) =>
-				applyEdgeChanges(changes, edgesSnapshot)
-			),
-		[]
-	)
 	const onConnect = useCallback(
 		(params: Connection) =>
 			setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
-		[]
+		[setEdges]
 	)
 
 	return (
-		<div style={{ width: "100%", height: "100%" }}>
+		<div className="size-full">
 			<ReactFlow
 				nodes={nodes}
 				edges={edges}
@@ -80,6 +68,11 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
 				proOptions={{
 					hideAttribution: true,
 				}}
+				snapGrid={[10, 10]}
+				snapToGrid
+				panOnScroll
+				panOnDrag={false}
+				selectionOnDrag
 			>
 				<Background />
 				<Controls />

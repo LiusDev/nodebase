@@ -5,12 +5,7 @@ import { PlusIcon } from "lucide-react"
 export const AddNodeBtn = () => {
 	return (
 		<NodeSelector>
-			<Button
-				onClick={() => {}}
-				size="icon"
-				variant="outline"
-				className="bg-background"
-			>
+			<Button size="icon" variant="outline" className="bg-background">
 				<PlusIcon />
 			</Button>
 		</NodeSelector>

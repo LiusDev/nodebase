@@ -5,8 +5,9 @@ import { PlaceholderNode } from "./react-flow/placeholder-node"
 import { PlusIcon } from "lucide-react"
 import { WorkflowNode } from "./workflow-node"
 import { NodeSelector } from "./node-selector"
+import { memo } from "react"
 
-export const InitialNode = (props: NodeProps) => {
+export const InitialNode = memo((props: NodeProps) => {
 	return (
 		<WorkflowNode showToolbar={false}>
 			<NodeSelector>
@@ -18,4 +19,6 @@ export const InitialNode = (props: NodeProps) => {
 			</NodeSelector>
 		</WorkflowNode>
 	)
-}
+})
+
+InitialNode.displayName = "InitialNode"

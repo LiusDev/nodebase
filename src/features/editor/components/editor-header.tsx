@@ -15,15 +15,18 @@ import {
 import Link from "next/link"
 import {
 	useSuspenseWorkflow,
+	useUpdateWorkflow,
 	useUpdateWorkflowName,
 } from "@/features/workflows/hooks/use-workflows"
 import { useEffect, useRef, useState } from "react"
 import { Input } from "@/components/ui/input"
+import { useReactFlow } from "@xyflow/react"
+import { Spinner } from "@/components/ui/spinner"
 
 export const EditorNameInput = () => {
 	const { workflowId } = useParams<EditorParams>()
 	const { data: workflow } = useSuspenseWorkflow(workflowId)
-	const updateWorkflowName = useUpdateWorkflowName()
+	const updateWorkflowNameMutation = useUpdateWorkflowName()
 	const [isEditing, setIsEditing] = useState(false)
 	const [name, setName] = useState(workflow.name)
 
@@ -43,14 +46,14 @@ export const EditorNameInput = () => {
 	}, [isEditing])
 
 	const handleSave = () => {
-		if (updateWorkflowName.isPending) return
+		if (updateWorkflowNameMutation.isPending) return
 
 		if (name === workflow.name) {
 			setIsEditing(false)
 			return
 		}
 
-		updateWorkflowName.mutate(
+		updateWorkflowNameMutation.mutate(
 			{ id: workflowId, name },
 			{
 				onError: () => {
@@ -74,15 +77,17 @@ export const EditorNameInput = () => {
 
 	if (isEditing) {
 		return (
-			<Input
-				disabled={updateWorkflowName.isPending}
-				ref={inputRef}
-				value={name}
-				onChange={(e) => setName(e.target.value)}
-				onBlur={handleSave}
-				onKeyDown={handleKeyDown}
-				className="h-7 w-auto min-w-[100px] px-2"
-			/>
+			<>
+				<Input
+					disabled={updateWorkflowNameMutation.isPending}
+					ref={inputRef}
+					value={name}
+					onChange={(e) => setName(e.target.value)}
+					onBlur={handleSave}
+					onKeyDown={handleKeyDown}
+					className="h-7 w-auto min-w-[100px] px-2"
+				/>
+			</>
 		)
 	}
 
@@ -115,10 +120,31 @@ export const EditorBreadCrumbs = () => {
 }
 
 export const EditorSaveButton = () => {
+	const { workflowId } = useParams<EditorParams>()
+	const workflowMutation = useUpdateWorkflow()
+	const editor = useReactFlow()
+
+	const handleSaveWorkflow = () => {
+		if (workflowMutation.isPending) return
+		const nodes = editor.getNodes()
+		const edges = editor.getEdges()
+
+		workflowMutation.mutate({ id: workflowId, nodes, edges })
+	}
 	return (
 		<div className="ml-auto">
-			<Button size="sm" onClick={() => {}} disabled={false}>
-				<SaveIcon className="size-4" />
+			<Button
+				size="sm"
+				onClick={handleSaveWorkflow}
+				disabled={workflowMutation.isPending}
+			>
+				{workflowMutation.isPending ? (
+					<div className="relative px-1.5">
+						<Spinner className="size-4 absolute " />
+					</div>
+				) : (
+					<SaveIcon className="size-4" />
+				)}
 				Save
 			</Button>
 		</div>

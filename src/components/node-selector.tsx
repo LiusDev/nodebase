@@ -18,6 +18,7 @@ import { useCallback } from "react"
 import { getNewNodePosition, isNodeTypeExist } from "@/lib/utils"
 import { toast } from "sonner"
 import { createId } from "@paralleldrive/cuid2"
+import { useLocalState } from "@/hooks/use-local-state"
 
 export type NodeTypeOption = {
 	type: NodeType
@@ -56,15 +57,15 @@ export const NodeSelector = ({
 	onOpenChange,
 	children,
 }: NodeSelectorProps) => {
+	const [isOpen, handleOpenChange] = useLocalState({
+		value: open,
+		setValue: onOpenChange,
+		defaultValue: false,
+	})
+
 	const { setNodes, getNodes, screenToFlowPosition } = useReactFlow()
 
-	const handleAddManualTrigger = (selectionType: NodeTypeOption) => {
-		const nodes = getNodes()
-		const hasManualTrigger = isNodeTypeExist(nodes, NodeType.MANUAL_TRIGGER)
-		if (hasManualTrigger) {
-			toast.error("Only one manual trigger is allowed per workflow")
-			return
-		}
+	const handleAddNode = (selectionType: NodeTypeOption) => {
 		setNodes((nodes) => {
 			const hasInitialTrigger = nodes.some(
 				(node) => node.type === NodeType.INITIAL
@@ -84,24 +85,41 @@ export const NodeSelector = ({
 
 			return [...nodes, newNode]
 		})
+		handleOpenChange(false)
+	}
+
+	const handleAddManualTriggerNode = (selectionType: NodeTypeOption) => {
+		const nodes = getNodes()
+		const hasManualTrigger = isNodeTypeExist(nodes, NodeType.MANUAL_TRIGGER)
+		if (hasManualTrigger) {
+			toast.error("Only one manual trigger is allowed per workflow")
+			return
+		}
+		handleAddNode(selectionType)
+	}
+
+	const handleAddHttpRequestNode = (selectionType: NodeTypeOption) => {
+		handleAddNode(selectionType)
 	}
 
 	const handleNodeSelect = useCallback(
 		(selectionType: NodeTypeOption) => {
 			switch (selectionType.type) {
 				case NodeType.MANUAL_TRIGGER:
-					handleAddManualTrigger(selectionType)
+					handleAddManualTriggerNode(selectionType)
+					break
+				case NodeType.HTTP_REQUEST:
+					handleAddHttpRequestNode(selectionType)
 					break
 				default:
 					break
 			}
-			onOpenChange?.(false)
 		},
 		[onOpenChange, setNodes, getNodes, screenToFlowPosition]
 	)
 
 	return (
-		<Sheet open={open} onOpenChange={onOpenChange}>
+		<Sheet open={isOpen} onOpenChange={handleOpenChange}>
 			<SheetTrigger asChild>{children}</SheetTrigger>
 			<SheetContent
 				side="right"

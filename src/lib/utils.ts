@@ -1,4 +1,4 @@
-import type {
+import {
 	Node as ServerNode,
 	Connection as ServerConnection,
 	NodeType,
@@ -37,6 +37,7 @@ export const isNodeTypeExist = (nodes: Node[], nodeType: NodeType) =>
 	nodes.some((node) => node.type === nodeType)
 
 export const getNewNodePosition = () => {
+	if (typeof window === "undefined") return { x: 0, y: 0 }
 	const centerX = window.innerWidth / 2
 	const centerY = window.innerHeight / 2
 

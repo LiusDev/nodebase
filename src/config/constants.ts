@@ -4,3 +4,11 @@ export const PAGINATION = {
 	MAX_PAGE_SIZE: 100,
 	MIN_PAGE_SIZE: 1,
 }
+
+export enum HttpRequestMethod {
+	GET = "GET",
+	POST = "POST",
+	PUT = "PUT",
+	PATCH = "PATCH",
+	DELETE = "DELETE",
+}

@@ -1,9 +1,9 @@
 "use client"
 
 import { NodeToolbar, Position } from "@xyflow/react"
-import { memo } from "react"
 import { Button } from "./ui/button"
 import { SettingsIcon, TrashIcon } from "lucide-react"
+import { memo } from "react"
 
 interface WorkflowNodeProps {
 	children: React.ReactNode
@@ -14,41 +14,45 @@ interface WorkflowNodeProps {
 	description?: string
 }
 
-export const WorkflowNode = ({
-	children,
-	showToolbar = true,
-	onDelete,
-	onSettings,
-	name,
-	description,
-}: WorkflowNodeProps) => {
-	return (
-		<>
-			{showToolbar && (
-				<NodeToolbar>
-					<Button size="sm" variant="ghost" onClick={onSettings}>
-						<SettingsIcon className="size-4" />
-					</Button>
-					<Button size="sm" variant="ghost" onClick={onDelete}>
-						<TrashIcon className="size-4" />
-					</Button>
-				</NodeToolbar>
-			)}
-			{children}
-			{name && (
-				<NodeToolbar
-					position={Position.Bottom}
-					isVisible
-					className="max-w-[200px] text-center"
-				>
-					<p className="font-medium">{name}</p>
-					{description && (
-						<p className="text-sm truncate text-muted-foreground">
-							{description}
-						</p>
-					)}
-				</NodeToolbar>
-			)}
-		</>
-	)
-}
+export const WorkflowNode = memo(
+	({
+		children,
+		showToolbar = true,
+		onDelete,
+		onSettings,
+		name,
+		description,
+	}: WorkflowNodeProps) => {
+		return (
+			<>
+				{showToolbar && (
+					<NodeToolbar>
+						<Button size="sm" variant="ghost" onClick={onSettings}>
+							<SettingsIcon className="size-4" />
+						</Button>
+						<Button size="sm" variant="ghost" onClick={onDelete}>
+							<TrashIcon className="size-4" />
+						</Button>
+					</NodeToolbar>
+				)}
+				{children}
+				{name && (
+					<NodeToolbar
+						position={Position.Bottom}
+						isVisible
+						className="max-w-[200px] text-center"
+					>
+						<p className="font-medium">{name}</p>
+						{description && (
+							<p className="text-sm truncate text-muted-foreground">
+								{description}
+							</p>
+						)}
+					</NodeToolbar>
+				)}
+			</>
+		)
+	}
+)
+
+WorkflowNode.displayName = "WorkflowNode"

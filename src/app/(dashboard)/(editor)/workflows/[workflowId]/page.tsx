@@ -10,6 +10,7 @@ import {
 } from "@/features/editor/components/editor"
 import { EditorHeader } from "@/features/editor/components/editor-header"
 import { EditorParams } from "@/features/editor/params"
+import { EditorProviders } from "@/features/editor/providers/editor-providers"
 
 interface PageProps {
 	params: Promise<EditorParams>
@@ -24,10 +25,12 @@ export default async function Page({ params }: PageProps) {
 		<HydrateClient>
 			<ErrorBoundary fallback={<EditorError />}>
 				<Suspense fallback={<EditorLoading />}>
-					<EditorHeader />
-					<main className="flex-1">
-						<Editor workflowId={workflowId} />
-					</main>
+					<EditorProviders>
+						<EditorHeader />
+						<main className="flex-1">
+							<Editor workflowId={workflowId} />
+						</main>
+					</EditorProviders>
 				</Suspense>
 			</ErrorBoundary>
 		</HydrateClient>
