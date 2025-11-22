@@ -46,9 +46,7 @@ interface HttpRequestDialogProps {
 	onOpenChange?: (open: boolean) => void
 	children?: React.ReactNode
 	onSubmit: (value: z.infer<typeof formSchema>) => void
-	defaultEndpoint?: string
-	defaultMethod?: HttpRequestMethod
-	defaultBody?: string
+	defaultValues?: Partial<z.infer<typeof formSchema>>
 }
 
 export const HttpRequestSettingsDialog = ({
@@ -56,9 +54,11 @@ export const HttpRequestSettingsDialog = ({
 	onOpenChange,
 	children,
 	onSubmit,
-	defaultEndpoint = "",
-	defaultMethod = HttpRequestMethod.GET,
-	defaultBody = "",
+	defaultValues = {
+		endpoint: "",
+		method: HttpRequestMethod.GET,
+		body: "",
+	},
 }: HttpRequestDialogProps) => {
 	const [isOpen, setIsOpen] = useLocalState({
 		defaultValue: false,
@@ -67,23 +67,15 @@ export const HttpRequestSettingsDialog = ({
 	})
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
-		defaultValues: {
-			endpoint: defaultEndpoint,
-			method: defaultMethod,
-			body: defaultBody,
-		},
+		defaultValues,
 	})
 
 	// Reset form if open changes
 	useEffect(() => {
 		if (!open) {
-			form.reset({
-				endpoint: defaultEndpoint,
-				method: defaultMethod,
-				body: defaultBody,
-			})
+			form.reset(defaultValues)
 		}
-	}, [open, form, defaultEndpoint, defaultMethod, defaultBody])
+	}, [open, form, defaultValues])
 
 	const watchMethod = form.watch("method")
 	const showBodyField = [
